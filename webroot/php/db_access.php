@@ -3,10 +3,19 @@
  * database access methods 
 */
 
-function _getMessageListForUser ($dbLink, $userId, $unreadOnly) {
+function _getUserIdFromToken($userToken) {
+	// look up token and return user ID to use in SQL queries
+	// for now, return the default user
+	return 2;
+}
+
+function _getMessageListForUser ($dbLink, $userToken, $unreadOnly) {
 	if (empty($unreadOnly)) {
 		$unreadOnly = 0;
 	}
+	
+	$userId = _getUserIdFromToken($userToken);
+	
 	$queryString = 'CALL GetMessagesToUser('.$userId.','.$unreadOnly.')';
 	$result = @mysqli_query ($dbLink, $queryString);
 	if (!$result) {
