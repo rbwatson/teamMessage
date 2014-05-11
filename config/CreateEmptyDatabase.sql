@@ -17,9 +17,11 @@ SET time_zone = "+00:00";
 DELIMITER ;
 
 --
--- Database: `ihsclinicinfo`
+-- Database: `fieldteaminfo`
 --
-USE ihsclinicinfo;
+DROP DATABASE IF EXISTS `fieldteaminfo`;
+CREATE DATABASE `fieldteaminfo` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+USE fieldteaminfo;
 
 DELIMITER $$
 --
@@ -33,8 +35,8 @@ a.`displayName` AS 'fromName',
 r.`messageRouteDate` AS 'sentDate',
 r.`messageReadDate` AS 'readDate',
 r.`messageSubject` AS 'subject'
-  FROM `ihsmessageroutes` AS r 
-    JOIN `ihsaccounts` AS a ON a.`accountId` = r.`messageFromId`
+  FROM `teammessageroutes` AS r 
+    JOIN `teamaccounts` AS a ON a.`accountId` = r.`messageFromId`
   WHERE r.`messageToId` = pUserId AND
     (r.messageReadDate IS NULL OR NOT pUnreadOnly)$$
 
@@ -43,11 +45,11 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ihsaccounts`
+-- Table structure for table `teamaccounts`
 --
 
-DROP TABLE IF EXISTS `ihsaccounts`;
-CREATE TABLE IF NOT EXISTS `ihsaccounts` (
+DROP TABLE IF EXISTS `teamaccounts`;
+CREATE TABLE IF NOT EXISTS `teamaccounts` (
   `accountId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'unique ID of this user',
   `firstName` varchar(256) CHARACTER SET utf32 COLLATE utf32_unicode_ci NOT NULL COMMENT 'User''s first name',
   `lastName` varchar(256) COLLATE utf8_unicode_ci NOT NULL COMMENT 'User''s last name',
@@ -62,11 +64,11 @@ CREATE TABLE IF NOT EXISTS `ihsaccounts` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ihsmessageroutes`
+-- Table structure for table `teammessageroutes`
 --
 
-DROP TABLE IF EXISTS `ihsmessageroutes`;
-CREATE TABLE IF NOT EXISTS `ihsmessageroutes` (
+DROP TABLE IF EXISTS `teammessageroutes`;
+CREATE TABLE IF NOT EXISTS `teammessageroutes` (
   `messageRouteId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Unique ID of routing record',
   `messageId` bigint(20) NOT NULL COMMENT 'Message ID',
   `messageFromId` bigint(20) NOT NULL COMMENT 'User ID of message sender',
@@ -85,19 +87,34 @@ CREATE TABLE IF NOT EXISTS `ihsmessageroutes` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ihsmessages`
+-- Table structure for table `teammessages`
 --
 
-DROP TABLE IF EXISTS `ihsmessages`;
-CREATE TABLE IF NOT EXISTS `ihsmessages` (
+DROP TABLE IF EXISTS `teammessages`;
+CREATE TABLE IF NOT EXISTS `teammessages` (
   `messageId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Unique ID of this message',
-  `creatorId` bigint(20) NOT NULL COMMENT 'ID of the user who created the message',
+  `creatorFromId` bigint(20) NOT NULL COMMENT 'ID of the user who created the message',
   `messageType` enum('text','radio','group') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'text',
   `messageSubject` varchar(1024) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Message subject line that appears in summary feed lists',
   `messageBody` longtext COLLATE utf8_unicode_ci NOT NULL COMMENT 'message body text',
   `messageDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'date/time the message was received for processing',
   PRIMARY KEY (`messageId`),
   UNIQUE KEY `messageId` (`messageId`),
-  KEY `creatorId` (`creatorId`),
+  KEY `creatorFromId` (`creatorFromId`),
   KEY `messageType` (`messageType`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Message database' AUTO_INCREMENT=1 ;
+
+--
+-- Table structure for table `teamsessions`
+--
+
+DROP TABLE IF EXISTS `teamsessions`;
+CREATE TABLE IF NOT EXISTS `teamsessions` (
+  `sessionId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Unique ID of this session',
+  `sessionToken` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'session token',
+  `userId` bigint(20) NOT NULL COMMENT 'User ID of this session',
+  `sessionOpenTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'time the session started',
+  `sessionExpireTime` datetime DEFAULT NULL COMMENT 'time the session expires',
+  PRIMARY KEY (`sessionToken`),
+  UNIQUE KEY `sessionId` (`sessionId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;

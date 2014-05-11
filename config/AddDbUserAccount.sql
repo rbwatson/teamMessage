@@ -1,7 +1,7 @@
--- Creates user account for functions used by ihs message server
+-- Creates user account for functions used by team message server
 -- this account is only used by the code
 
-GRANT USAGE ON *.* TO 'ihsClinicInfo'@'localhost' IDENTIFIED BY PASSWORD '*CFD3105F77D8E5344CE4A03FEB4AF98AD980FB39';
+GRANT USAGE ON *.* TO 'fieldteaminfo'@'localhost' IDENTIFIED BY PASSWORD '*0FE5A744B9EC2612665BCA3EA7A897DAC929A8A1';
 
-GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON `ihsclinicinfo`.* TO 'ihsClinicInfo'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON `fieldteaminfo`.* TO 'fieldteaminfo'@'localhost';
 
