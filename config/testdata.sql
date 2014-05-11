@@ -16,9 +16,9 @@ USE `fieldteaminfo`;
 -- Loading data for table `teamaccounts`
 --
 
-INSERT INTO `teamaccounts` (`accountId`, `firstName`, `lastName`, `displayName`, `userRole`, `password`) VALUES
-(1, 'Admin', 'User', 'Admin', 'unspecified', NULL),
-(2, 'Default', 'User', 'Default', 'unspecified', NULL);
+INSERT INTO `teamaccounts` (`accountId`, `username`, `firstName`, `lastName`, `displayName`, `userRole`, `password`) VALUES
+(1, 'Admin', 'Admin', 'User', 'Admin', 'unspecified', NULL),
+(2, 'Default', 'Default', 'User', 'Default', 'unspecified', NULL);
 
 --
 -- Loading data for table `teammessageroutes`

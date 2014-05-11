@@ -3,25 +3,19 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 10, 2014 at 04:09 PM
+-- Generation Time: May 11, 2014 at 01:49 PM
 -- Server version: 5.5.28-log
 -- PHP Version: 5.4.7
---
---
---	This script creates empty tables. 
---  Run testdata.sql to load the test data into the tables
---
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-DELIMITER ;
 
 --
 -- Database: `fieldteaminfo`
 --
-DROP DATABASE IF EXISTS `fieldteaminfo`;
+DROP DATABASE `fieldteaminfo`;
 CREATE DATABASE `fieldteaminfo` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-USE fieldteaminfo;
+USE `fieldteaminfo`;
 
 DELIMITER $$
 --
@@ -40,6 +34,58 @@ r.`messageSubject` AS 'subject'
   WHERE r.`messageToId` = pUserId AND
     (r.messageReadDate IS NULL OR NOT pUnreadOnly)$$
 
+DROP PROCEDURE IF EXISTS `GetUserWithNoPassword`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUserWithNoPassword`(IN `pUsername` VARCHAR(64))
+    NO SQL
+SELECT `accountId`,`username`,
+	`firstName`,`lastName`,
+        `displayName`,`userRole` 
+   FROM `teamaccounts` 
+   WHERE `username` = pUsername 
+   	AND `password` IS NULL$$
+
+DROP PROCEDURE IF EXISTS `GetUserWithPassword`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUserWithPassword`(IN `pUsername` VARCHAR(64), IN `pPassword` VARCHAR(64))
+    NO SQL
+SELECT `accountId`,`username`,
+	`firstName`,`lastName`,
+        `displayName`,`userRole` 
+   FROM `teamaccounts` 
+   WHERE `username` = pUsername 
+   	AND `password` = pPassword$$
+
+--
+-- Functions
+--
+DROP FUNCTION IF EXISTS `CreateNewSessionForUserAndGetToken`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `CreateNewSessionForUserAndGetToken`(pUserId bigint) RETURNS varchar(64) CHARSET utf8 COLLATE utf8_unicode_ci
+    DETERMINISTIC
+BEGIN
+	DECLARE myToken VARCHAR(64);
+	SELECT `sessionToken` INTO myToken FROM `teamsessions` WHERE `userId` = pUserId AND `sessionExpireTime` > NOW() ORDER BY `sessionOpenTime` DESC LIMIT 0,1;
+	IF  myToken IS NOT NULL THEN
+		DELETE FROM `teamsessions` WHERE `userId` = pUserId;
+	END IF;
+	SET myToken = UNIX_TIMESTAMP();
+	INSERT INTO `teamsessions`(`sessionToken`, `userId`, `sessionOpenTime`, `sessionExpireTime`) VALUES  (myToken, pUserId, CURRENT_TIMESTAMP, DATE_ADD(NOW(), INTERVAL 4 HOUR));
+	RETURN (myToken);
+END$$
+
+DROP FUNCTION IF EXISTS `IsUserLoggedIn`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `IsUserLoggedIn`(`pUserId` BIGINT) RETURNS tinyint(1)
+    DETERMINISTIC
+BEGIN
+	DECLARE myToken VARCHAR(64);
+        DECLARE answer BOOLEAN;
+	SELECT `sessionToken` INTO myToken FROM `teamsessions` WHERE `userId` = pUserId AND `sessionExpireTime` > NOW() ORDER BY `sessionOpenTime` DESC LIMIT 0,1;
+	IF  myToken IS NULL THEN
+		SET answer = FALSE;
+        ELSE
+        	SET answer = TRUE;
+	END IF;
+	RETURN (answer);
+END$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -51,13 +97,15 @@ DELIMITER ;
 DROP TABLE IF EXISTS `teamaccounts`;
 CREATE TABLE IF NOT EXISTS `teamaccounts` (
   `accountId` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'unique ID of this user',
-  `firstName` varchar(256) CHARACTER SET utf32 COLLATE utf32_unicode_ci NOT NULL COMMENT 'User''s first name',
+  `username` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'the username used to sign in',
+  `firstName` varchar(256) COLLATE utf8_unicode_ci NOT NULL COMMENT 'User''s first name',
   `lastName` varchar(256) COLLATE utf8_unicode_ci NOT NULL COMMENT 'User''s last name',
   `displayName` varchar(512) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name to display in messages',
   `userRole` enum('doctor','dentist','nurse','pharmacy','translator','radio','helper','teamLead','unspecified') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'unspecified' COMMENT 'User''s team role',
   `password` varchar(256) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Account password',
   PRIMARY KEY (`accountId`),
   UNIQUE KEY `accountId` (`accountId`),
+  KEY `username` (`username`),
   KEY `userRole` (`userRole`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
@@ -104,6 +152,8 @@ CREATE TABLE IF NOT EXISTS `teammessages` (
   KEY `messageType` (`messageType`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Message database' AUTO_INCREMENT=1 ;
 
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `teamsessions`
 --
@@ -117,4 +167,4 @@ CREATE TABLE IF NOT EXISTS `teamsessions` (
   `sessionExpireTime` datetime DEFAULT NULL COMMENT 'time the session expires',
   PRIMARY KEY (`sessionToken`),
   UNIQUE KEY `sessionId` (`sessionId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
