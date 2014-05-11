@@ -2,9 +2,15 @@
 /* 
  * database access methods 
 */
+function _openSessionAndReturnToken ($user, $pass) {
+	// reutrn a dummy for now
+	// TODO: actually create a new session in the database
+	return time();
+}
+
 
 function _getUserIdFromToken($userToken) {
-	// look up token and return user ID to use in SQL queries
+	// TODO: look up token and return user ID to use in SQL queries
 	// for now, return the default user
 	return 2;
 }

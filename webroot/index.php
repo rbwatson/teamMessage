@@ -89,7 +89,7 @@ if ($_LOGGEDIN) {
 				// user is not athorized so...
 				// * display error message
 				// for now, we'll just show a message
-				alert ('didn\'t work!');
+				alert ('Unable to sign in.\n\nCheck your username and password and try again.');
 			}
 		});
 	}
