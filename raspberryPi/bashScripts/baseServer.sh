@@ -5,6 +5,7 @@
 #  as a web server.
 #
 #	curl --silent "http://<Server>/raspi/bashScripts/baseServer.sh" | sudo sh
+#	curl --silent "http://192.165.1.101/raspi/bashScripts/baseServer.sh" | sudo sh
 #
 #++++
 #  check for root access
@@ -14,7 +15,7 @@ then
   echo "This install must be run as root or with sudo."
   exit
 fi
-#++++
+#++++s
 #  update the base OS distribution
 #----
 echo "updating OS"
@@ -39,7 +40,7 @@ gateway 192.165.1.1
 allow-hotplug wlan0
 iface wlan0 inet manual
 wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-#iface default inet dhcp
+iface default inet dhcp
 
 NETWORKIFACE
 #++++
@@ -98,6 +99,10 @@ address=/ftp.raspi.local/192.165.1.64#21
 address=/sftp.raspi.local/192.165.1.64#22
 domain=raspi.local
 
+server=192.165.1.64
+server=192.165.1.1
+server=8.8.8.8
+
 # Max cache size dnsmasq can give us, and we want all of it!
 cache-size=10000
 
@@ -129,3 +134,7 @@ service dnsmasq restart
 #----
 echo "Installing DNS tools"
 apt-get install -y dnsutils
+#++++
+#  Exit message
+#----
+echo "Reboot to apply changes."
