@@ -38,9 +38,11 @@ gateway 192.165.1.1
 
 
 allow-hotplug wlan0
-iface wlan0 inet manual
+iface wlan0 inet static
 wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-iface default inet dhcp
+address 192.165.1.65
+netmask 255.255.255.0
+gateway 192.165.1.1
 
 NETWORKIFACE
 #++++
@@ -92,6 +94,11 @@ cat - > /etc/dnsmasq.conf <<DNSMASQCONF
 
 domain-needed
 
+interface=eth0
+
+#resolv-file=/etc/resolv.dnsmasq.conf
+#listen-address=127.0.0.1
+
 # Set up your local domain here
 address=/raspi.local/192.165.1.64
 address=/www.raspi.local/192.165.1.64#80
@@ -99,7 +106,6 @@ address=/ftp.raspi.local/192.165.1.64#21
 address=/sftp.raspi.local/192.165.1.64#22
 domain=raspi.local
 
-server=192.165.1.64
 server=192.165.1.1
 server=8.8.8.8
 
@@ -117,12 +123,12 @@ DNSMASQCONF
 #		server's fixed IP
 #----
 echo "Configuring nameservers"
-cat - > /etc/resolv.conf <<NAMESERVERS
+cat - > /etc/resolv.conf <<LOCALNAMESERVERS
 nameserver 192.165.1.64
 nameserver 192.165.1.1
 nameserver 8.8.8.8
 
-NAMESERVERS
+LOCALNAMESERVERS
 
 #++++
 #  restart service to use new settings
