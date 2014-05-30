@@ -124,7 +124,7 @@ DNSMASQCONF
 #----
 echo "Configuring nameservers"
 cat - > /etc/resolv.conf <<LOCALNAMESERVERS
-nameserver 192.165.1.64
+nameserver 127.0.0.1
 nameserver 192.165.1.1
 nameserver 8.8.8.8
 

@@ -79,6 +79,12 @@ phpinfo();
 ?>
 PHPINFOTEXT
 #++++
+#  Restart the DNS server
+#----
+echo "Restarting the DNS server"
+service dnsmasq restart
+#++++
 #  Done with this script
 #----
-echo "Done installing LAMP stack"
+echo "Done installing LAMP stack."
+echo "Shutdown and restart the Raspberry Pi."
