@@ -93,24 +93,26 @@ cat - > /etc/dnsmasq.conf <<DNSMASQCONF
 # adapted from: Stephen Wood heystephenwood.com
 
 domain-needed
+bogus-priv
+strict-order
 
 interface=eth0
 
 #resolv-file=/etc/resolv.dnsmasq.conf
 #listen-address=127.0.0.1
 
+server=/local/192.165.1.64
+server=8.8.8.8
+local=/local/
+
 # Set up your local domain here
 address=/raspi.local/192.165.1.64
 address=/www.raspi.local/192.165.1.64#80
 address=/ftp.raspi.local/192.165.1.64#21
 address=/sftp.raspi.local/192.165.1.64#22
-domain=raspi.local
-
-server=192.165.1.1
-server=8.8.8.8
 
 # Max cache size dnsmasq can give us, and we want all of it!
-cache-size=10000
+#cache-size=1000
 
 #no DHCP from dnsmasq
 no-dhcp-interface=
