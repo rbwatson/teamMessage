@@ -5,6 +5,7 @@
 #	 MySQL
 #	 PHP5
 # 	 FTP
+#    WordPress
 #
 #	curl --silent "http://<Server>/raspi/bashScripts/lampStack.sh" | sudo sh
 #	curl --silent "http://192.165.1.101/raspi/bashScripts/lampStack.sh" | sudo sh
@@ -44,6 +45,11 @@ else
 	apt-get install -y php5
 fi
 #++++
+#   TODO: edit /etc/php5/apache2/php.ini 
+#		to increase max upload file size to 8M
+#----
+
+#++++
 #  Install MySQL if it doesn't run when called
 #----
 MySQL --help > /dev/null
@@ -79,12 +85,11 @@ phpinfo();
 ?>
 PHPINFOTEXT
 #++++
-#  Restart the DNS server
-#----
-echo "Restarting the DNS server"
-service dnsmasq restart
-#++++
 #  Done with this script
 #----
-echo "Done installing LAMP stack."
-echo "Shutdown and restart the Raspberry Pi."
+echo " "
+echo " "
+echo "Finished installing the web server software."
+echo " "
+echo "Copy the Wordpress files to /var/www/wp on the Raspberry Pi to complete the installation."
+echo "Shutdown and restart the Raspberry Pi, and then copy the Wordpress files."
